@@ -5,19 +5,19 @@ def hasSigningDefined = project.hasProperty('KEYSTORE_FILE') &&  project.hasProp
 // Get the output directory based on if the gradle command was kicked for the entire SDK or the example only
 def binOutput = gradle.ext.PVR_BINARY_OUTPUT_DIR
 // The set of framework projects on which this application is dependent
-def projectDependencies = ["PVRShell", "PVRUtilsGles", "PVRCamera"]
+def projectDependencies = ["PVRShell", "PVRUtilsGles", "PVRCamera", "PVRAssets"]
 
 // This block configures the repositories and dependencies for Gradle itself. Here we add a dependency for the Android plugin for Gradle as it provides
 // the additional instructions Gradle needs to build Android app modules
 buildscript {
 	repositories {
 		google()
-		jcenter()
+		mavenCentral()
 	}
 
 	// Adds the Android plugin for Gradle as a classpath dependency
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.0.1'
+		classpath 'com.android.tools.build:gradle:8.13.1'
 	}
 }
 
@@ -25,17 +25,19 @@ buildscript {
 allprojects {
 	repositories {
 		google()
-		jcenter()
+		mavenCentral()
 	}
 }
 
 android {
-	compileSdkVersion 29
-	ndkVersion "26.2.11394342"
+
+	namespace "com.powervr.OpenGLESIntroducingPVRCamera"
+	ndkVersion "29.0.14206865"
 	defaultConfig {
 		applicationId "com.powervr.OpenGLESIntroducingPVRCamera"
-		minSdkVersion 21
-		targetSdkVersion 29
+		minSdkVersion 24
+		targetSdkVersion 33
+		compileSdkVersion 35
 		externalNativeBuild {
 			cmake {
 				cppFlags "-fexceptions"
@@ -73,7 +75,7 @@ android {
 	externalNativeBuild {
 		cmake {
 			path "../CMakeLists.txt"
-			version "3.10.2"
+			version "3.22.1"
 		}
 	}
 
@@ -110,6 +112,7 @@ dependencies {
 	// Dependency on local binaries
 	implementation fileTree(dir: 'libs', include: ['*.jar'])
 	implementation project(":PVRCamera")
+    implementation project(":PVRAssets")
 }
 
 // For release builds ensure that signing has taken place appropriately
@@ -164,6 +167,14 @@ tasks.whenTaskAdded { task ->
 	if (task.name == 'mergeDebugAssets') {
 		task.dependsOn copyAssetsDebug
 	}
+
+    // Fix implicit dependency errors
+    if (task.name == 'generateReleaseLintVitalReportModel') {
+        task.dependsOn copyAssetsRelease
+    }
+    if (task.name == 'lintVitalAnalyzeRelease') {
+        task.dependsOn copyAssetsRelease
+    }
 
 	// Copy the binary to the final bin folder.
 	if (task.name == 'packageRelease') {
