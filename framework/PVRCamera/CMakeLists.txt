@@ -43,15 +43,18 @@ target_link_libraries(PVRCamera
 		PVRCore
 	PRIVATE
 		${PVRCamera_PRIVATE_LINK_LIBS})
-	
-set(PVRCamera_INCLUDE_DIRECTORIES 
-	${CMAKE_CURRENT_LIST_DIR}/..
-	${CMAKE_CURRENT_LIST_DIR}/../../include)
-		
+
+# Explicitly add the parent directory to the include path for this directory
+# This ensures that #include "PVRCamera/CameraInterface.h" works correctly
+include_directories("${CMAKE_CURRENT_LIST_DIR}/..")
+
+# Use generator expressions to ensure export compatibility
 target_include_directories(PVRCamera 
-	PUBLIC 
-		"$<BUILD_INTERFACE:${PVRCamera_INCLUDE_DIRECTORIES}>"
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+	PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/..>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../../include>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 if(PVR_ENABLE_INSTALL)
 	install(TARGETS PVRCamera EXPORT PVRCameraTargets

@@ -19,6 +19,8 @@ else()
 	message(STATUS "Cross compilation not detected, building glslangValidator")
 	set(IS_CROSS_COMPILATION OFF CACHE INTERNAL "")
 endif()
+# message(STATUS "Temporal workaround: Setting cross compilation off to use prebuilt glslangValidator")
+# set(IS_CROSS_COMPILATION ON CACHE INTERNAL "")
 
 if(PVR_GLSLANG_VALIDATOR_INSTALL_DIR)
 	set(glslangValidator_BINARY_LOCATION "${PVR_GLSLANG_VALIDATOR_INSTALL_DIR}/bin/glslangValidator${HOST_EXECUTABLE_SUFFIX}")
@@ -43,6 +45,7 @@ if(NOT PVR_PREBUILT_DEPENDENCIES)
 	set(BUILD_TESTING OFF CACHE INTERNAL "Build GLSLang Tests")
 	set(ENABLE_HLSL OFF CACHE INTERNAL "Build GLSLang HLSL compiler")
 	set(BUILD_EXTERNAL OFF CACHE INTERNAL "Build GLSLang external")
+	set(ENABLE_PCH OFF CACHE INTERNAL "Disable Precompiled header")
 
 	if (IS_CROSS_COMPILATION)	
 		# Set the ENABLE_GLSLANG_BINARIES flag for the glslang library so glslangvalidator is not built, as for Android precompiled binaries are used
